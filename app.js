@@ -1,53 +1,39 @@
-let app = new Vue({
+new Vue({
 
     el: "#app",
 
     data: {
-
-        clockstuff: '00:00:00'
-
+        clockStuff: ''
     },
 
-    created: function () {
-
+    created: function() {
         let self = this;
-        self.clockstuff = self.setTime();
-
+        self.clockStuff = self.setTime()
         setInterval(function() {
-            self.clockstuff = self.setTime();
-        }, 1000);
-
+            self.clockStuff = self.setTime();
+        }, 500);
     },
 
     methods: {
 
-        setTime: function () {
+        setTime: function() {
 
             let now = new Date();
 
-            let hours = now.getHours();
-            if (hours < 10) {
-                hours = '0' + hours;
-            }
+            let hours = this.addZero(now.getHours());
 
-            let minutes = now.getMinutes();
-            if (minutes < 10) {
-                minutes = '0' + minutes;
-            }
+            let minutes = this.addZero(now.getMinutes());
 
-            let seconds = now.getSeconds();
-            if (seconds < 10) {
-                seconds = '0' + seconds;
-            }
+            let seconds = this.addZero(now.getSeconds());
 
             return hours + ':' + minutes + ':' + seconds;
+        },
 
+        addZero: function(num) {
+            if (num < 10) {
+                num = '0' + num;
+            }
+            return num;
         }
-
-
     }
-
-
-
-
 });
