@@ -1,14 +1,14 @@
 Vue.component('flash-overlay', {
     template: `
-        <div>
-            <div v-if="this.flash" class="flash overlay top"></div>
-            <div v-if="this.flash" class="flash overlay bottom"></div>
+        <div v-if="this.flash">
+            <div class="overlay top bg-warning"></div>
+            <div class="overlay bottom bg-warning"></div>
         </div>
     `,
 
     data: function() {
         return {
-            flash: true,
+            flash: false,
             interval: null
         }
     },
@@ -24,7 +24,7 @@ Vue.component('flash-overlay', {
 
         });
 
-        self.$parent.$on('disactivate-alarm', function() {
+        self.$parent.$on('deactivate-alarm', function() {
 
             clearInterval(self.interval);
             self.flash = false;
@@ -45,18 +45,37 @@ new Vue({
 
     data: {
         clockDisplay: '',
-        alarms: []
+        alarms: [],
+        triggered: false,
+        newAlarm: {
+            hour: '',
+            minute: '',
+            second: '',
+            error: ''
+        }
     },
 
     created: function() {
         let self = this;
 
         self.clockDisplay = self.setTime()
+
         setInterval(function() {
             self.clockDisplay = self.setTime();
         }, 500);
 
+        self.$on('trigger-alarm', function() {
+            self.triggered = true;
+        });
 
+        self.$on('deactivate-alarm', function() {
+            self.triggered = false;
+        })
+
+        let savedAlarms = localStorage.getItem('alarms').split(',');
+        if (savedAlarms.length) {
+            self.alarms = savedAlarms;
+        }
     },
 
     methods: {
@@ -71,22 +90,57 @@ new Vue({
 
             let seconds = this.addZero(now.getSeconds());
 
-            return hours + ':' + minutes + ':' + seconds;
+            let timeString = hours + ':' + minutes + ':' + seconds;
+
+            // Trigger an alarm only if no other has been triggered.
+            if (!this.triggered) {
+                for (let alarm of this.alarms) {
+                    if (timeString == alarm) {
+                        this.$emit('trigger-alarm');
+                        break;
+                    }
+                }
+            }
+
+            return timeString;
         },
 
         addZero: function(num) {
-            if (num < 10) {
-                num = '0' + num;
+            return num < 10 ? '0' + num : num;
+        },
+
+        deactivateAlarm: function() {
+            this.$emit('deactivate-alarm');
+        },
+
+        addAlarm: function() {
+            let hour = parseInt(this.newAlarm.hour);
+            let minute = parseInt(this.newAlarm.minute);
+            let second = parseInt(this.newAlarm.second);
+
+            // Validate input
+            if (hour < 0 || hour > 23) {
+                this.newAlarm.error = 'You entered an invalid hour. Please try again.';
             }
-            return num;
+            if (minute < 0 || minute > 59) {
+                this.newAlarm.error = 'You entered an invalid minute. Please try again.';
+            }
+            if (second < 0 || second > 59) {
+                this.newAlarm.error = 'You entered an invalid second. Please try again.';
+            }
+
+            if (this.newAlarm.error) {
+                this.newAlarm.hour = this.newAlarm.minute = this.newAlarm.second = '';
+            } else {
+                // Save this alarm
+                let timeString = this.addZero(hour) + ':' + this.addZero(minute) + ':' + this.addZero(second);
+                this.alarms.push(timeString);
+                localStorage.setItem('alarms', this.alarms);
+            }
         },
 
-        triggerAlarm: function() {
-            this.$emit('trigger-alarm');
-        },
-
-        disactivateAlarm: function() {
-            this.$emit('disactivate-alarm');
+        removeAlarm: function(alarm) {
+            this.alarms.splice(alarm, 1);
         }
     }
 });

@@ -2,6 +2,11 @@
     display: none;
 }
 
+.wrapper {
+    max-width: 400px;
+    margin: auto;
+}
+
 #clock {
     font-size: 5rem;
     font-family: monospace;
@@ -25,6 +30,17 @@
     bottom: 0;
     left: 0;
 }
-.flash {
-    background: white;
+.time-picker {
+    margin: 2rem auto;
+}
+.time-picker label {
+    font-size: 0.8rem;
+}
+.remove {
+    transition: 0.3s;
+    cursor: default;
+}
+.remove:hover {
+    font-weight:bold;
+    transform: scale(1.5);
 }

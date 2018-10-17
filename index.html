@@ -7,14 +7,51 @@
     <link rel="stylesheet" href="style.css" type="text/css">
     <title>Digital Clock</title>
 </head>
-<body class="container text-center pt-5 bg-dark text-light">
+<body class="container pt-5 bg-dark">
 
     <div id="app" class="pt-5" v-cloak>
 
-        <span id="clock">{{ clockDisplay }}</span>
+        <div id="clock" class="text-center text-warning">{{ clockDisplay }}</div>
 
-        <button @click='triggerAlarm'>Trigger</button>
-        <button @click='disactivateAlarm'>Turn off</button>
+
+        <button v-if="triggered" @click='deactivateAlarm' class="btn btn-warning btn-lg btn-block mt-5">SILENCE ALARM</button>
+
+
+        <div class="wrapper" v-else>
+
+            <form v-if="!triggered" class="time-picker text-light">
+                <h3>Set an alarm:</h3>
+                <div class="form-row">
+                    <div class="col">
+                        <label for="newAlarmHour">Hour:</label>
+                        <input type="number" v-model="newAlarm.hour" id="newAlarmHour" class="form-control mr-2" min="0" max="23"></input>
+                    </div>
+                    <div class="col">
+                        <label for="newAlarmHour">Minute:</label>
+                        <input type="number" v-model="newAlarm.minute" id="newAlarmMin" class="form-control mr-2" min="0" max="59"></input>
+                    </div>
+                    <div class="col">
+                        <label for="newAlarmHour">Second:</label>
+                        <input type="number" v-model="newAlarm.second" id="newAlarmSec" class="form-control" min="0" max="59"></input>
+                    </div>
+                </div>
+                <div class="form-group text-center mt-2">
+                    <button type="button" class="btn btn-primary" @click="addAlarm">Add Alarm</button>
+                </div>
+                <div v-if="newAlarm.error" class="alert alert-warning">{{ newAlarm.error}} </div>
+            </form>
+
+
+            <h3 class="text-light">Alarms:</h3>
+            <ul v-if="alarms.length" class="list-group">
+                <li v-for="(alarm, index) in alarms" class="list-group-item">{{ alarm }}
+                    <span class="float-right remove" @click="removeAlarm(index)">&times;</span>
+                </li>
+            </ul>
+            <div v-else class="alert alert-info">No alarms set.</div>
+
+        </div class="wrapper">
+
 
         <flash-overlay></flash-overlay>
     </div>
