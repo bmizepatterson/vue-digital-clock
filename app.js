@@ -3,14 +3,14 @@ new Vue({
     el: "#app",
 
     data: {
-        clockStuff: ''
+        clockDisplay: ''
     },
 
     created: function() {
         let self = this;
-        self.clockStuff = self.setTime()
+        self.clockDisplay = self.setTime()
         setInterval(function() {
-            self.clockStuff = self.setTime();
+            self.clockDisplay = self.setTime();
         }, 500);
     },
 
